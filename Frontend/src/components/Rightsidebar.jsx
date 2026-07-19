@@ -68,7 +68,7 @@ const Rightsidebar = () => {
       </div>
 
       <div className="flex items-center mb-4">
-        <span className="text-xs font-bold text-neutral-500 uppercase tracking-wide select-none">Suggested for you</span>
+        <span className="text-xs font-bold text-neutral-500 uppercase tracking-wide select-none">All Users</span>
         <button className="ml-auto text-xs font-semibold text-neutral-800 hover:text-neutral-500 cursor-pointer select-none">
           See All
         </button>
@@ -98,7 +98,7 @@ const Rightsidebar = () => {
                     <span className="text-[10px] text-neutral-400 truncate">
                       {sUser.mutualConnections?.length > 0 
                         ? `Followed by ${sUser.mutualConnections[0]}${sUser.mutualConnections.length > 1 ? ` + ${sUser.mutualConnections.length - 1} more` : ''}` 
-                        : "Suggested for you"}
+                        : "User"}
                     </span>
                   </div>
                 </div>
