@@ -21,6 +21,7 @@ const Profile = () => {
   
   const [activeTab, setActiveTab] = useState("posts");
   const [closeFriendsOpen, setCloseFriendsOpen] = useState(false);
+  const [connectionsOpen, setConnectionsOpen] = useState(false);
 
   const followOrUnfollowHandler = async () => {
     try {
@@ -57,6 +58,40 @@ const Profile = () => {
           ...loggedInUser,
           closeFriends: updatedCloseFriends
         }));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Operation failed");
+    }
+  };
+
+  const connectionActionHandler = async (action) => {
+    try {
+      let url = "";
+      if (action === "send") url = `/api/v1/user/connection-request/${profileUser?._id}`;
+      else if (action === "accept") url = `/api/v1/user/connection-request/${profileUser?._id}/accept`;
+      else if (action === "reject" || action === "cancel") url = `/api/v1/user/connection-request/${profileUser?._id}/reject`;
+      else if (action === "remove") url = `/api/v1/user/connection/remove/${profileUser?._id}`;
+
+      const res = await axios.post(url, {}, { withCredentials: true });
+      if (res.data.success) {
+        toast.success(res.data.message);
+        fetchUserProfile();
+        
+        // Optimistically update loggedInUser state
+        let updatedUser = { ...loggedInUser };
+        if (action === "send") {
+          updatedUser.sentConnectionRequests = [...(updatedUser.sentConnectionRequests || []), profileUser?._id];
+        } else if (action === "accept") {
+          updatedUser.connections = [...(updatedUser.connections || []), profileUser?._id];
+          updatedUser.receivedConnectionRequests = (updatedUser.receivedConnectionRequests || []).filter(id => id !== profileUser?._id);
+        } else if (action === "reject" || action === "cancel") {
+          updatedUser.sentConnectionRequests = (updatedUser.sentConnectionRequests || []).filter(id => id !== profileUser?._id);
+          updatedUser.receivedConnectionRequests = (updatedUser.receivedConnectionRequests || []).filter(id => id !== profileUser?._id);
+        } else if (action === "remove") {
+          updatedUser.connections = (updatedUser.connections || []).filter(id => id !== profileUser?._id);
+        }
+        dispatch(setAuthUser(updatedUser));
       }
     } catch (error) {
       console.error(error);
@@ -130,17 +165,60 @@ const Profile = () => {
                   >
                     {isFollowing ? "Unfollow" : "Follow"}
                   </Button>
-                  <Button
-                    onClick={toggleCloseFriendHandler}
-                    className={`font-semibold px-4 py-1.5 h-auto text-sm rounded-lg flex items-center gap-2 ${
-                      isCloseFriend
-                        ? "bg-green-50 hover:bg-green-100 text-green-700 border border-green-200"
-                        : "bg-neutral-100 hover:bg-neutral-200 text-neutral-800"
-                    }`}
-                  >
-                    <Star className={`w-4 h-4 ${isCloseFriend ? "fill-green-600 text-green-600" : "text-neutral-500"}`} />
-                    {isCloseFriend ? "Close Friend" : "Add to Close Friends"}
-                  </Button>
+                  
+                  {/* Connection Button Logic */}
+                  {profileUser.isConnection ? (
+                    <Button
+                      onClick={() => connectionActionHandler("remove")}
+                      className="bg-neutral-100 hover:bg-red-50 text-neutral-800 hover:text-red-600 font-semibold px-4 py-1.5 h-auto text-sm rounded-lg border border-neutral-200 hover:border-red-200"
+                    >
+                      Remove Connection
+                    </Button>
+                  ) : loggedInUser?.sentConnectionRequests?.includes(profileUser?._id) ? (
+                    <Button
+                      onClick={() => connectionActionHandler("cancel")}
+                      className="bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-semibold px-4 py-1.5 h-auto text-sm rounded-lg"
+                    >
+                      Pending (Cancel)
+                    </Button>
+                  ) : loggedInUser?.receivedConnectionRequests?.includes(profileUser?._id) ? (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => connectionActionHandler("accept")}
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-1.5 h-auto text-sm rounded-lg"
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        onClick={() => connectionActionHandler("reject")}
+                        className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold px-4 py-1.5 h-auto text-sm rounded-lg"
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => connectionActionHandler("send")}
+                      className="bg-blue-50 hover:bg-blue-100 text-[#0095F6] font-semibold px-4 py-1.5 h-auto text-sm rounded-lg border border-blue-200 flex items-center gap-2"
+                    >
+                      <Users className="w-4 h-4" />
+                      Connect
+                    </Button>
+                  )}
+
+                  {profileUser.isConnection && (
+                    <Button
+                      onClick={toggleCloseFriendHandler}
+                      className={`font-semibold px-4 py-1.5 h-auto text-sm rounded-lg flex items-center gap-2 ${
+                        isCloseFriend
+                          ? "bg-green-50 hover:bg-green-100 text-green-700 border border-green-200"
+                          : "bg-neutral-100 hover:bg-neutral-200 text-neutral-800"
+                      }`}
+                    >
+                      <Star className={`w-4 h-4 ${isCloseFriend ? "fill-green-600 text-green-600" : "text-neutral-500"}`} />
+                      {isCloseFriend ? "Close Friend" : "Add to Close Friends"}
+                    </Button>
+                  )}
                 </>
               )}
             </div>
@@ -165,6 +243,12 @@ const Profile = () => {
                 {profileUser.following?.length || 0}
               </strong>
               following
+            </span>
+            <span className="text-sm cursor-pointer hover:text-[#0095F6] transition-colors" onClick={() => setConnectionsOpen(true)}>
+              <strong className="font-semibold block md:inline md:mr-1">
+                {profileUser.connections?.length || 0}
+              </strong>
+              connections
             </span>
             {isOwnProfile && (
               <span className="text-sm">
@@ -221,6 +305,13 @@ const Profile = () => {
           </button>
         )}
       </div>
+      {/* Connection Banner */}
+      {!isOwnProfile && !profileUser.isConnection && (
+        <div className="bg-blue-50 text-blue-800 text-sm p-3 rounded-lg text-center mb-6 mt-4 font-medium flex items-center justify-center gap-2">
+          <Users className="w-4 h-4" />
+          Connect with {profileUser.username} to see their private posts.
+        </div>
+      )}
 
       {/* Grid */}
       {displayedPosts?.length === 0 ? (
@@ -303,6 +394,41 @@ const Profile = () => {
             ) : (
               <div className="text-center py-10 text-gray-400 text-sm">
                 No close friends added yet.
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Connections Modal */}
+      <Dialog open={connectionsOpen} onOpenChange={setConnectionsOpen}>
+        <DialogContent className="sm:max-w-md bg-white border border-gray-100 shadow-xl rounded-xl p-0 overflow-hidden">
+          <DialogHeader className="p-4 border-b border-gray-100 bg-gray-50/50">
+            <h2 className="text-center font-bold text-base text-gray-800 flex justify-center items-center gap-2">
+              <Users className="w-5 h-5 text-blue-500" /> Connections
+            </h2>
+          </DialogHeader>
+          <div className="flex flex-col max-h-[400px] overflow-y-auto p-4 gap-4">
+            {profileUser.connections?.length > 0 ? (
+              profileUser.connections.map((conn) => (
+                <div key={conn._id} className="flex items-center justify-between cursor-pointer" onClick={() => { setConnectionsOpen(false); navigate(`/profile/${conn._id}`); }}>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-10 h-10 border border-gray-100">
+                      <AvatarImage src={conn.profilePicture} />
+                      <AvatarFallback className="bg-gray-100 text-gray-600 font-semibold">
+                        {conn.username?.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="font-semibold text-sm text-gray-800">{conn.username}</span>
+                  </div>
+                  <Button variant="ghost" className="text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 h-8">
+                    View Profile
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-10 text-gray-400 text-sm">
+                No connections yet.
               </div>
             )}
           </div>

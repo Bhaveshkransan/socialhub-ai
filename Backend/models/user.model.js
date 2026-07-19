@@ -57,6 +57,24 @@ const userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  connections: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  sentConnectionRequests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  receivedConnectionRequests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   walletBalance: {
     type: Number,
     default: 0,

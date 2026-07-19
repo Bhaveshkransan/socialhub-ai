@@ -48,7 +48,7 @@ export const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: "Something is missing, please check", success: false });
     }
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).populate("connections", "username profilePicture");
     if (!user) {
       return res.status(401).json({
         message: "Incorrect Email or Password",
@@ -88,6 +88,7 @@ export const login = async (req, res) => {
       posts: populatedPosts,
       bookmarks: user.bookmarks,
       closeFriends: user.closeFriends,
+      connections: user.connections,
       walletBalance: user.walletBalance,
     };
 
@@ -130,8 +131,10 @@ export const getProfile = async (req, res) => {
       .select("-password")
       .populate({ path: "posts", options: { sort: { createdAt: -1 } } })
       .populate({ path: "bookmarks", options: { sort: { createdAt: -1 } } })
-      .populate("closeFriends", "username profilePicture");
+      .populate("closeFriends", "username profilePicture")
+      .populate("connections", "username profilePicture");
     let mutualConnections = [];
+    let isConnection = false;
     if (req.id && req.id !== userId) {
       const loggedInUser = await User.findById(req.id).populate("following", "username");
       if (loggedInUser && user.followers) {
@@ -140,12 +143,29 @@ export const getProfile = async (req, res) => {
         );
         mutualConnections = mutualUsers.map(m => m.username);
       }
+      isConnection = user.connections && user.connections.includes(req.id);
+    } else if (req.id === userId) {
+      isConnection = true; // User viewing their own profile
     }
+
+    // Filter posts based on visibility
+    let filteredPosts = user.posts;
+    let filteredBookmarks = user.bookmarks;
+
+    if (!isConnection) {
+      filteredPosts = user.posts.filter(p => p.visibility !== "connections");
+      filteredBookmarks = user.bookmarks.filter(p => p.visibility !== "connections");
+    }
+
+    let userObject = user.toObject();
+    userObject.posts = filteredPosts;
+    userObject.bookmarks = filteredBookmarks;
 
     return res.status(200).json({
       user: {
-        ...user.toObject(),
-        mutualConnections
+        ...userObject,
+        mutualConnections,
+        isConnection
       },
       success: true,
     });
@@ -354,3 +374,121 @@ export const toggleCloseFriend = async (req, res) => {
   }
 };
 
+export const sendConnectionRequest = async (req, res) => {
+  try {
+    const senderId = req.id;
+    const receiverId = req.params.id;
+    if (senderId === receiverId) return res.status(400).json({ message: "Cannot send request to yourself", success: false });
+
+    const sender = await User.findById(senderId);
+    const receiver = await User.findById(receiverId);
+    if (!sender || !receiver) return res.status(404).json({ message: "User not found", success: false });
+
+    if (sender.connections.includes(receiverId)) return res.status(400).json({ message: "Already connected", success: false });
+    if (sender.sentConnectionRequests.includes(receiverId)) return res.status(400).json({ message: "Request already sent", success: false });
+
+    sender.sentConnectionRequests.push(receiverId);
+    receiver.receivedConnectionRequests.push(senderId);
+
+    await Promise.all([sender.save(), receiver.save()]);
+
+    // Create Notification
+    const newNotification = await Notification.create({
+      recipient: receiverId,
+      sender: senderId,
+      type: "connection_request"
+    });
+
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("notification", {
+        _id: newNotification._id,
+        type: "connection_request",
+        userId: senderId,
+        userDetails: { username: sender.username, profilePicture: sender.profilePicture },
+        message: "Sent you a connection request"
+      });
+    }
+
+    return res.status(200).json({ message: "Connection request sent", success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error", success: false });
+  }
+};
+
+export const acceptConnectionRequest = async (req, res) => {
+  try {
+    const userId = req.id;
+    const senderId = req.params.id;
+
+    const user = await User.findById(userId);
+    const sender = await User.findById(senderId);
+    if (!user || !sender) return res.status(404).json({ message: "User not found", success: false });
+
+    if (!user.receivedConnectionRequests.includes(senderId)) {
+      return res.status(400).json({ message: "No pending request", success: false });
+    }
+
+    // Remove requests
+    user.receivedConnectionRequests = user.receivedConnectionRequests.filter(id => id.toString() !== senderId);
+    sender.sentConnectionRequests = sender.sentConnectionRequests.filter(id => id.toString() !== userId);
+
+    // Add to connections
+    if (!user.connections.includes(senderId)) user.connections.push(senderId);
+    if (!sender.connections.includes(userId)) sender.connections.push(userId);
+
+    await Promise.all([user.save(), sender.save()]);
+
+    return res.status(200).json({ message: "Connection accepted", success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error", success: false });
+  }
+};
+
+export const rejectConnectionRequest = async (req, res) => {
+  try {
+    const userId = req.id;
+    const targetId = req.params.id;
+
+    const user = await User.findById(userId);
+    const target = await User.findById(targetId);
+    if (!user || !target) return res.status(404).json({ message: "User not found", success: false });
+
+    // Can be used to reject OR cancel a sent request
+    user.receivedConnectionRequests = user.receivedConnectionRequests.filter(id => id.toString() !== targetId);
+    target.sentConnectionRequests = target.sentConnectionRequests.filter(id => id.toString() !== userId);
+    
+    user.sentConnectionRequests = user.sentConnectionRequests.filter(id => id.toString() !== targetId);
+    target.receivedConnectionRequests = target.receivedConnectionRequests.filter(id => id.toString() !== userId);
+
+    await Promise.all([user.save(), target.save()]);
+
+    return res.status(200).json({ message: "Request cancelled/rejected", success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error", success: false });
+  }
+};
+
+export const removeConnection = async (req, res) => {
+  try {
+    const userId = req.id;
+    const targetId = req.params.id;
+
+    const user = await User.findById(userId);
+    const target = await User.findById(targetId);
+    if (!user || !target) return res.status(404).json({ message: "User not found", success: false });
+
+    user.connections = user.connections.filter(id => id.toString() !== targetId);
+    target.connections = target.connections.filter(id => id.toString() !== userId);
+
+    await Promise.all([user.save(), target.save()]);
+
+    return res.status(200).json({ message: "Connection removed", success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error", success: false });
+  }
+};

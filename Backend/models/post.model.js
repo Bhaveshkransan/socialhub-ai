@@ -6,7 +6,7 @@ const postSchema = new mongoose.Schema({
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   viewedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  visibility: { type: String, enum: ["public", "close_friends"], default: "public" },
+  visibility: { type: String, enum: ["public", "close_friends", "connections"], default: "public" },
   mediaType: { type: String, enum: ["image", "video"], default: "image" },
 }, { timestamps: true });
 

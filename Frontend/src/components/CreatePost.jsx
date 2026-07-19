@@ -135,6 +135,7 @@ const CreatePost = ({ open, setOpen }) => {
             >
               <option value="public">Public</option>
               <option value="close_friends">Close Friends</option>
+              <option value="connections">Connections Only</option>
             </select>
           </div>
 

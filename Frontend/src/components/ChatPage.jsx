@@ -67,7 +67,7 @@ const ChatPage = () => {
 
         {/* Chat List */}
         <div className="overflow-y-auto flex-1 p-3 flex flex-col gap-1">
-          {(suggestedUsers || [])
+          {(user?.connections || [])
             .filter((sUser) => sUser._id !== user?._id)
             .map((sUser) => {
               const isSelected = selectedUser?._id === sUser._id;

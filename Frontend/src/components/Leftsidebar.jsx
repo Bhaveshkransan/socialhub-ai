@@ -289,19 +289,52 @@ const LeftSidebar = () => {
               <div className="p-4 text-center text-neutral-500">No new notifications</div>
             ) : (
               likeNotification?.map((notification) => (
-                <div key={notification._id} className="flex items-center gap-3 p-3 hover:bg-neutral-100 dark:hover:bg-zinc-900 rounded-lg cursor-pointer transition-colors">
-                  <Avatar className="w-10 h-10">
-                    <AvatarImage src={notification.userDetails?.profilePicture || notification.sender?.profilePicture} />
-                    <AvatarFallback>
-                      {(notification.userDetails?.username || notification.sender?.username)?.substring(0,2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-sm">
-                      <span className="font-bold">{notification.userDetails?.username || notification.sender?.username}</span>{" "}
-                      {notification.type === "like" ? "liked your post." : "commented on your post."}
-                    </span>
+                <div key={notification._id} className="flex flex-col gap-2 p-3 hover:bg-neutral-100 dark:hover:bg-zinc-900 rounded-lg transition-colors border-b border-gray-100 last:border-0">
+                  <div className="flex items-center gap-3 cursor-pointer">
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={notification.userDetails?.profilePicture || notification.sender?.profilePicture} />
+                      <AvatarFallback>
+                        {(notification.userDetails?.username || notification.sender?.username)?.substring(0,2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-sm">
+                        <span className="font-bold">{notification.userDetails?.username || notification.sender?.username}</span>{" "}
+                        {notification.type === "like" ? "liked your post." : 
+                         notification.type === "connection_request" ? "sent you a connection request." : "commented on your post."}
+                      </span>
+                    </div>
                   </div>
+                  {notification.type === "connection_request" && (
+                    <div className="flex gap-2 ml-13 mt-1">
+                      <button 
+                        onClick={async () => {
+                           try {
+                             await axios.post(`/api/v1/user/connection-request/${notification.userId}/accept`, {}, { withCredentials: true });
+                             toast.success("Connection request accepted");
+                             markNotificationsAsRead();
+                             // Need a page reload or state refresh ideally, but simple toast is ok
+                             // because Profile page triggers its own fetch when loaded
+                           } catch (err) { toast.error("Error accepting request"); }
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs font-semibold rounded-md"
+                      >
+                        Accept
+                      </button>
+                      <button 
+                        onClick={async () => {
+                           try {
+                             await axios.post(`/api/v1/user/connection-request/${notification.userId}/reject`, {}, { withCredentials: true });
+                             toast.success("Connection request rejected");
+                             markNotificationsAsRead();
+                           } catch (err) { toast.error("Error rejecting request"); }
+                        }}
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 text-xs font-semibold rounded-md"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))
             )}

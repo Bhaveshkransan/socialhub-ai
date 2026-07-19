@@ -15,6 +15,12 @@ export const sendMessage = async (req, res) => {
         .status(400)
         .json({ message: "Message text required", success: false });
 
+    // Enforce connection requirement
+    const sender = await User.findById(senderId);
+    if (!sender || !sender.connections.includes(recieverId)) {
+      return res.status(403).json({ message: "You must be connected to send a message", success: false });
+    }
+
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, recieverId] },
     });

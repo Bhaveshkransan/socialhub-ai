@@ -71,11 +71,16 @@ export const getAllPost = async (req, res) => {
     const usersWhoAddedMe = await User.find({ closeFriends: currentUserId }).select("_id");
     const friendsIds = usersWhoAddedMe.map(u => u._id);
 
+    // Find all users who are in my connections
+    const currentUser = await User.findById(currentUserId).select("connections");
+    const connectionIds = currentUser ? currentUser.connections : [];
+
     const posts = await Post.find({
       $or: [
         { visibility: "public" },
         { author: currentUserId },
-        { visibility: "close_friends", author: { $in: friendsIds } }
+        { visibility: "close_friends", author: { $in: friendsIds } },
+        { visibility: "connections", author: { $in: connectionIds } }
       ]
     })
       .sort({ createdAt: -1 })
