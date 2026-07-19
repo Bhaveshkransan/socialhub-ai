@@ -28,7 +28,7 @@ const Post = ({ post }) => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/post/${post._id}/view`, {}, { withCredentials: true })
+          axios.post(`/api/v1/post/${post._id}/view`, {}, { withCredentials: true })
             .catch(err => console.log("Failed to record view", err));
           observer.disconnect();
         }
@@ -50,7 +50,7 @@ const Post = ({ post }) => {
 
   const bookmarkHandler = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/post/${post?._id}/bookmark`, { withCredentials: true });
+      const res = await axios.get(`/api/v1/post/${post?._id}/bookmark`, { withCredentials: true });
       if (res.data.success) {
         toast.success(res.data.message);
         
@@ -73,7 +73,7 @@ const Post = ({ post }) => {
     try {
       const action = isLiked ? "dislike" : "like";
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/post/${post?._id}/${action}`,
+        `/api/v1/post/${post?._id}/${action}`,
         { withCredentials: true }
       );
       if (res.data.success) {
@@ -99,7 +99,7 @@ const Post = ({ post }) => {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/post/${post?._id}/comment`,
+        `/api/v1/post/${post?._id}/comment`,
         { text },
         {
           headers: {
@@ -128,7 +128,7 @@ const Post = ({ post }) => {
   const deleteHandler = async () => {
     try {
       const res = await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/post/delete/${post?._id}`,
+        `/api/v1/post/delete/${post?._id}`,
         { withCredentials: true },
       );
       const updatedPostData = posts.filter(

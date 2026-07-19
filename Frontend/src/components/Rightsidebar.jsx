@@ -22,7 +22,7 @@ const Rightsidebar = () => {
     try {
       setLoadingIds((prev) => ({ ...prev, [targetId]: true }));
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/followOrUnfollow/${targetId}`,
+        `/api/v1/user/followOrUnfollow/${targetId}`,
         { withCredentials: true }
       );
       if (res.data.success) {

@@ -20,7 +20,7 @@ const ChatPage = () => {
   const sendMessageHandler = async (receiverId) => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/message/send/${receiverId}`,
+        `/api/v1/message/send/${receiverId}`,
         { textMessage },
         {
           headers: {
@@ -79,7 +79,7 @@ const ChatPage = () => {
                     dispatch(setSelectedUser(sUser));
                     dispatch(clearUnreadMessage(sUser._id));
                     try {
-                      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/notification/read/message/${sUser._id}`, {}, {
+                      await axios.post(`/api/v1/notification/read/message/${sUser._id}`, {}, {
                         withCredentials: true
                       });
                     } catch (error) {

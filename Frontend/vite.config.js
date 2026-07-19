@@ -15,5 +15,11 @@ export default defineConfig({
   },
   server: {
     open: true,
+    proxy: {
+      "/api": {
+        target: "https://socialhub-ai.onrender.com",
+        changeOrigin: true
+      }
+    }
   },
 })

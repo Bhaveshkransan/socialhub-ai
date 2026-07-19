@@ -9,7 +9,7 @@ const useGetAllPost = () => {
   useEffect(() => {
     const fetchAllPost = async () => {
       try {
-        const res = await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/v1/post/all", {
+        const res = await axios.get("/api/v1/post/all", {
           withCredentials: true,
         });
         if (res.data.success) {

@@ -20,7 +20,7 @@ const SearchPage = () => {
       }
       setLoading(true);
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/search?query=${query}`, {
+        const res = await axios.get(`/api/v1/user/search?query=${query}`, {
           withCredentials: true,
         });
         if (res.data.success) {

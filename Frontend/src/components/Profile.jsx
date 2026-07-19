@@ -25,7 +25,7 @@ const Profile = () => {
   const followOrUnfollowHandler = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/followOrUnfollow/${profileUser?._id}`,
+        `/api/v1/user/followOrUnfollow/${profileUser?._id}`,
         { withCredentials: true }
       );
       if (res.data.success) {
@@ -41,7 +41,7 @@ const Profile = () => {
   const toggleCloseFriendHandler = async () => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/closefriend/${profileUser?._id}`,
+        `/api/v1/user/closefriend/${profileUser?._id}`,
         {},
         { withCredentials: true }
       );

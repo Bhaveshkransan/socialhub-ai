@@ -24,7 +24,7 @@ const CommentDialog = ({ open, setOpen, post }) => {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/post/${post?._id}/comment`,
+        `/api/v1/post/${post?._id}/comment`,
         { text },
         {
           headers: {

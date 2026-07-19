@@ -9,7 +9,7 @@ const useGetAllMessage = (selectedUserId) => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/message/all/${selectedUserId}`, {
+        const res = await axios.get(`/api/v1/message/all/${selectedUserId}`, {
           withCredentials: true,
         });
         if (res.data.success) {

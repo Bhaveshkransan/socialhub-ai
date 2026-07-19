@@ -36,7 +36,7 @@ const LeftSidebar = () => {
 
   const markNotificationsAsRead = async () => {
     try {
-      await axios.post(import.meta.env.VITE_BACKEND_URL + "/api/v1/notification/read", {}, {
+      await axios.post("/api/v1/notification/read", {}, {
         withCredentials: true
       });
       // Clear locally after reading
@@ -48,7 +48,7 @@ const LeftSidebar = () => {
 
   const logoutHandler = async () => {
     try {
-      const res = await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/v1/user/logout", {
+      const res = await axios.get("/api/v1/user/logout", {
         withCredentials: true,
       });
       if (res.data.success) {

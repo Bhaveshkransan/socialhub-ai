@@ -53,7 +53,7 @@ const EditProfile = () => {
     try {
       setLoading(true);
       const res = await axios.post(
-        import.meta.env.VITE_BACKEND_URL + "/api/v1/user/profile/edit",
+        "/api/v1/user/profile/edit",
         formData,
         {
           headers: {

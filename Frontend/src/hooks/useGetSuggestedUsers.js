@@ -9,7 +9,7 @@ const useGetSuggestedUsers = (user) => {
   useEffect(() => {
     const fetchSuggestedUsers = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/suggested?_t=${Date.now()}`, {
+        const res = await axios.get(`/api/v1/user/suggested?_t=${Date.now()}`, {
           withCredentials: true,
         });
         if (res.data.success) {

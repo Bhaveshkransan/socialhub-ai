@@ -64,7 +64,7 @@ const Analytics = () => {
     
     try {
       setLoading(true);
-      const res = await axios.post(import.meta.env.VITE_BACKEND_URL + "/api/v1/payment/withdraw", 
+      const res = await axios.post("/api/v1/payment/withdraw", 
         { ...bankDetails, amount: totalEarnings },
         { withCredentials: true }
       );
