@@ -134,8 +134,7 @@ const CreatePost = ({ open, setOpen }) => {
               className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
             >
               <option value="public">Public</option>
-              <option value="close_friends">Close Friends</option>
-              <option value="connections">Connections Only</option>
+              <option value="connections">Friends Only</option>
             </select>
           </div>
 

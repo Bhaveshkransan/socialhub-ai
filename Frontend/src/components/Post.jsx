@@ -147,8 +147,7 @@ const Post = ({ post }) => {
     try {
       let nextVis = "public";
       if (post.visibility === "public") nextVis = "connections";
-      else if (post.visibility === "connections") nextVis = "close_friends";
-      
+      else nextVis = "public"; // any other state (connections, close_friends) goes to public
       const res = await axios.post(
         `/api/v1/post/${post?._id}/visibility`,
         { visibility: nextVis },
@@ -171,7 +170,7 @@ const Post = ({ post }) => {
   return (
     <div 
       ref={postRef} 
-      className={`my-8 w-full max-w-[550px] mx-auto bg-white rounded-3xl overflow-hidden border ${post.visibility === 'close_friends' ? 'border-green-400 shadow-green-100/50 ring-2 ring-green-100' : 'border-gray-100'} shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative group`}
+      className={`my-8 w-full max-w-[550px] mx-auto bg-white rounded-3xl overflow-hidden border ${(post.visibility === 'connections' || post.visibility === 'close_friends') ? 'border-green-400 shadow-green-100/50 ring-2 ring-green-100' : 'border-gray-100'} shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative group`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm z-10 sticky top-0">
@@ -193,9 +192,9 @@ const Post = ({ post }) => {
                   Author
                 </span>
               )}
-              {post.visibility === 'close_friends' && (
+              {(post.visibility === 'connections' || post.visibility === 'close_friends') && (
                 <span className="bg-green-100 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full select-none flex items-center gap-1 border border-green-200 leading-none">
-                  ⭐️ Close Friends
+                  ⭐️ Friends Only
                 </span>
               )}
             </div>

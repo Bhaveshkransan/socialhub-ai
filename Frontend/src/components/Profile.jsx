@@ -153,14 +153,6 @@ const Profile = () => {
                   <Button variant="ghost" className="p-2 hover:bg-neutral-100 rounded-full h-auto">
                     <Settings className="w-5 h-5 text-gray-600" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    className="px-4 py-1.5 hover:bg-neutral-100 rounded-lg h-auto text-green-600 font-semibold text-sm flex items-center gap-2 border border-green-200"
-                    onClick={() => setCloseFriendsOpen(true)}
-                  >
-                    <Star className="w-4 h-4 fill-green-600" />
-                    Close Friends
-                  </Button>
                 </>
               ) : (
                 <>
@@ -212,20 +204,6 @@ const Profile = () => {
                     >
                       <Users className="w-4 h-4" />
                       Connect
-                    </Button>
-                  )}
-
-                  {profileUser.isConnection && (
-                    <Button
-                      onClick={toggleCloseFriendHandler}
-                      className={`font-semibold px-4 py-1.5 h-auto text-sm rounded-lg flex items-center gap-2 ${
-                        isCloseFriend
-                          ? "bg-green-50 hover:bg-green-100 text-green-700 border border-green-200"
-                          : "bg-neutral-100 hover:bg-neutral-200 text-neutral-800"
-                      }`}
-                    >
-                      <Star className={`w-4 h-4 ${isCloseFriend ? "fill-green-600 text-green-600" : "text-neutral-500"}`} />
-                      {isCloseFriend ? "Close Friend" : "Add to Close Friends"}
                     </Button>
                   )}
                 </>
@@ -373,41 +351,6 @@ const Profile = () => {
           ))}
         </div>
       )}
-
-      {/* Close Friends Modal */}
-      <Dialog open={closeFriendsOpen} onOpenChange={setCloseFriendsOpen}>
-        <DialogContent className="sm:max-w-md bg-white border border-gray-100 shadow-xl rounded-xl p-0 overflow-hidden">
-          <DialogHeader className="p-4 border-b border-gray-100 bg-gray-50/50">
-            <h2 className="text-center font-bold text-base text-gray-800 flex justify-center items-center gap-2">
-              <Star className="w-5 h-5 fill-green-500 text-green-500" /> Close Friends
-            </h2>
-          </DialogHeader>
-          <div className="flex flex-col max-h-[400px] overflow-y-auto p-4 gap-4">
-            {profileUser.closeFriends?.length > 0 ? (
-              profileUser.closeFriends.map((cf) => (
-                <div key={cf._id} className="flex items-center justify-between cursor-pointer" onClick={() => { setCloseFriendsOpen(false); navigate(`/profile/${cf._id}`); }}>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10 border border-gray-100">
-                      <AvatarImage src={cf.profilePicture} />
-                      <AvatarFallback className="bg-gray-100 text-gray-600 font-semibold">
-                        {cf.username?.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="font-semibold text-sm text-gray-800">{cf.username}</span>
-                  </div>
-                  <Button variant="ghost" className="text-xs font-semibold text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 px-3 h-8">
-                    Close Friend
-                  </Button>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-10 text-gray-400 text-sm">
-                No close friends added yet.
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Connections Modal */}
       <Dialog open={connectionsOpen} onOpenChange={setConnectionsOpen}>
