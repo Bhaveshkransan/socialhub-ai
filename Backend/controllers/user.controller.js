@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import { Post } from "../models/post.model.js";
+import { Notification } from "../models/notification.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 // import { use } from "react";
 
 export const register = async (req, res) => {
