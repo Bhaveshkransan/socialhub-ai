@@ -75,11 +75,10 @@ const Rightsidebar = () => {
       </div>
 
       {/* Suggestions List */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-200px)] pr-2 custom-scrollbar">
         {(suggestedUsers || []).length > 0 ? (
           (suggestedUsers || [])
             .filter((sUser) => sUser._id !== user?._id)
-            .slice(0, 5)
             .map((sUser) => {
             const isFollowing = user?.following?.includes(sUser._id);
             const isLoading = loadingIds[sUser._id];
