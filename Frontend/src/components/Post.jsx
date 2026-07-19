@@ -142,6 +142,32 @@ const Post = ({ post }) => {
     }
   };
 
+  const changeVisibilityHandler = async (e) => {
+    e.preventDefault();
+    try {
+      let nextVis = "public";
+      if (post.visibility === "public") nextVis = "connections";
+      else if (post.visibility === "connections") nextVis = "close_friends";
+      
+      const res = await axios.post(
+        `/api/v1/post/${post?._id}/visibility`,
+        { visibility: nextVis },
+        { withCredentials: true }
+      );
+      
+      if (res.data.success) {
+        toast.success(res.data.message);
+        const updatedPostData = posts.map((p) =>
+          p._id === post._id ? { ...p, visibility: nextVis } : p
+        );
+        disptach(setPosts(updatedPostData));
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to change visibility");
+    }
+  };
+
   return (
     <div 
       ref={postRef} 
@@ -202,6 +228,21 @@ const Post = ({ post }) => {
                 >
                   Unfollow
                 </Button>
+              }
+            />
+
+            <DialogClose
+              render={
+                user &&
+                user?._id === post?.author._id && (
+                  <Button
+                    variant="ghost"
+                    className="w-full rounded-none py-6 cursor-pointer text-blue-600 font-semibold"
+                    onClick={changeVisibilityHandler}
+                  >
+                    Change Visibility (Now: {post.visibility === 'close_friends' ? 'Close Friends' : post.visibility === 'connections' ? 'Connections' : 'Public'})
+                  </Button>
+                )
               }
             />
 

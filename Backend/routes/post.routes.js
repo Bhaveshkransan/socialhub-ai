@@ -1,5 +1,5 @@
 import express from "express";
-import { AddNewPost, getAllPost, getUserPost, likePost, disLikePost, addComment, getCommentsOfPost, deletePost, bookMarkPost, recordView } from "../controllers/post.controller.js";
+import { AddNewPost, getAllPost, getUserPost, likePost, disLikePost, addComment, getCommentsOfPost, deletePost, bookMarkPost, recordView, changePostVisibility } from "../controllers/post.controller.js";
 import { isAuthenticated } from "../middleware/isAuthenticated.js";
 import upload from "../middleware/multer.js";
 
@@ -15,5 +15,6 @@ router.route("/:id/comment/all").get(isAuthenticated, getCommentsOfPost);
 router.route("/delete/:id").delete(isAuthenticated, deletePost);
 router.route("/:id/bookmark").get(isAuthenticated, bookMarkPost);
 router.route("/:id/view").post(isAuthenticated, recordView);
+router.route("/:id/visibility").post(isAuthenticated, changePostVisibility);
 
 export default router;

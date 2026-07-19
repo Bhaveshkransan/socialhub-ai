@@ -404,3 +404,32 @@ export const recordView = async (req, res) => {
     return res.status(500).json({ message: "Internal server error", success: false });
   }
 };
+
+export const changePostVisibility = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const authorId = req.id;
+    const { visibility } = req.body;
+
+    if (!["public", "connections", "close_friends"].includes(visibility)) {
+      return res.status(400).json({ message: "Invalid visibility option", success: false });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found", success: false });
+    }
+
+    if (post.author.toString() !== authorId) {
+      return res.status(403).json({ message: "Unauthorized", success: false });
+    }
+
+    post.visibility = visibility;
+    await post.save();
+
+    return res.status(200).json({ message: `Visibility updated to ${visibility.replace('_', ' ')}`, success: true });
+  } catch (error) {
+    console.log("Error changing post visibility:", error);
+    return res.status(500).json({ message: "Internal server error", success: false });
+  }
+};

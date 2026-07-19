@@ -154,10 +154,21 @@ export const getProfile = async (req, res) => {
     let filteredPosts = user.posts;
     let filteredBookmarks = user.bookmarks;
 
-    if (!isConnection) {
-      filteredPosts = user.posts.filter(p => p.visibility !== "connections");
-      filteredBookmarks = user.bookmarks.filter(p => p.visibility !== "connections");
-    }
+    const isCloseFriend = req.id && user.closeFriends && user.closeFriends.includes(req.id);
+
+    filteredPosts = filteredPosts.filter(p => {
+      if (req.id === userId) return true; // Own profile
+      if (p.visibility === "close_friends" && !isCloseFriend) return false;
+      if (p.visibility === "connections" && !isConnection) return false;
+      return true;
+    });
+
+    filteredBookmarks = filteredBookmarks.filter(p => {
+      if (req.id === userId) return true;
+      if (p.visibility === "close_friends" && !isCloseFriend) return false;
+      if (p.visibility === "connections" && !isConnection) return false;
+      return true;
+    });
 
     let userObject = user.toObject();
     userObject.posts = filteredPosts;
