@@ -4,6 +4,7 @@ import Post from './Post';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
+import useGetAllPost from '@/hooks/useGetAllPost';
 import { Users, LayoutGrid, MessageCircle } from 'lucide-react';
 
 const FriendsPage = () => {
@@ -11,6 +12,7 @@ const FriendsPage = () => {
   const { user } = useSelector((store) => store.auth);
   const { posts } = useSelector((store) => store.post);
   const navigate = useNavigate();
+  useGetAllPost();
 
   const connections = user?.connections || [];
   const connectionIds = connections.map(c => c._id || c);
