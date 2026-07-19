@@ -26,9 +26,19 @@ const authSlice = createSlice({
         },
         setSelectedUser :(state, action)=>{
                   state.selectedUser=action.payload;
+        },
+        addConnection: (state, action) => {
+            if (state.user && !state.user.connections.some(c => c._id === action.payload._id)) {
+                state.user.connections.push(action.payload);
+            }
+        },
+        removeConnection: (state, action) => {
+            if (state.user) {
+                state.user.connections = state.user.connections.filter(c => c._id !== action.payload);
+            }
         }
     }
 })
 
-export const {setAuthUser, setUserProfile, setSuggestedUsers, setSelectedUser} = authSlice.actions;
+export const {setAuthUser, setUserProfile, setSuggestedUsers, setSelectedUser, addConnection, removeConnection} = authSlice.actions;
 export default authSlice.reducer

@@ -9,7 +9,7 @@ import { Heart, MessageCircle, Settings, Grid, Bookmark as BookmarkIcon, Loader2
 import { toast } from "sonner";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { useNavigate } from "react-router-dom";
-import { setAuthUser } from "@/redux/authSlice";
+import { setAuthUser, addConnection } from "@/redux/authSlice";
 
 const Profile = () => {
   const { id } = useParams();
@@ -76,6 +76,15 @@ const Profile = () => {
       const res = await axios.post(url, {}, { withCredentials: true });
       if (res.data.success) {
         toast.success(res.data.message);
+        
+        if (action === "accept") {
+          dispatch(addConnection({
+            _id: profileUser._id,
+            username: profileUser.username,
+            profilePicture: profileUser.profilePicture
+          }));
+        }
+
         fetchUserProfile();
         
         // Optimistically update loggedInUser state

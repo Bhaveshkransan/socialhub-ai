@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setAuthUser } from "@/redux/authSlice";
+import { setAuthUser, addConnection } from "@/redux/authSlice";
 import { markAllAsRead } from "@/redux/rtnSlice";
 import CreatePost from "./CreatePost";
 
@@ -320,11 +320,15 @@ const LeftSidebar = () => {
                       <button 
                         onClick={async () => {
                            try {
-                             await axios.post(`/api/v1/user/connection-request/${notification.userId}/accept`, {}, { withCredentials: true });
+                             const senderId = notification.userId || notification.sender?._id;
+                             await axios.post(`/api/v1/user/connection-request/${senderId}/accept`, {}, { withCredentials: true });
                              toast.success("Connection request accepted");
                              markNotificationsAsRead();
-                             // Need a page reload or state refresh ideally, but simple toast is ok
-                             // because Profile page triggers its own fetch when loaded
+                             dispatch(addConnection({
+                               _id: senderId,
+                               username: notification.userDetails?.username || notification.sender?.username,
+                               profilePicture: notification.userDetails?.profilePicture || notification.sender?.profilePicture
+                             }));
                            } catch (err) { toast.error("Error accepting request"); }
                         }}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs font-semibold rounded-md"
