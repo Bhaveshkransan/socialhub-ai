@@ -22,7 +22,7 @@ const Rightsidebar = () => {
     try {
       setLoadingIds((prev) => ({ ...prev, [targetId]: true }));
       const res = await axios.get(
-        `${import.meta.env.MODE === 'development' ? (import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://socialhub-ai-backend.onrender.com') + '' : 'https://socialhub-ai-backend.onrender.com'}//api/v1/user/followOrUnfollow/${targetId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/user/followOrUnfollow/${targetId}`,
         { withCredentials: true }
       );
       if (res.data.success) {

@@ -11,7 +11,7 @@ const useGetNotifications = () => {
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const res = await axios.get((import.meta.env.MODE === 'development' ? (import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://socialhub-ai-backend.onrender.com') + '' : 'https://socialhub-ai-backend.onrender.com') + "api/v1/notification", {
+                const res = await axios.get(import.meta.env.VITE_BACKEND_URL + "api/v1/notification", {
                     withCredentials: true,
                 });
                 if (res.data.success) {

@@ -24,7 +24,7 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      const socketio = io((import.meta.env.MODE === 'development' ? (import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://socialhub-ai-backend.onrender.com') + '' : 'https://socialhub-ai-backend.onrender.com') + "", {
+      const socketio = io(import.meta.env.VITE_BACKEND_URL, {
         query: {
           userId: user?._id,
         },

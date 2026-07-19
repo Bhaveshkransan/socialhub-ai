@@ -25,7 +25,7 @@ const Signup = () => {
     try {
       setLoading(true);
       const res = await axios.post(
-        (import.meta.env.MODE === 'development' ? (import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://socialhub-ai-backend.onrender.com') + '' : 'https://socialhub-ai-backend.onrender.com') + "api/v1/user/register",
+        import.meta.env.VITE_BACKEND_URL + "api/v1/user/register",
         input,
         {
           headers: {

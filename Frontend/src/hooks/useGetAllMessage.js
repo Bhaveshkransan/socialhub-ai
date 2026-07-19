@@ -9,7 +9,7 @@ const useGetAllMessage = (selectedUserId) => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.MODE === 'development' ? (import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://socialhub-ai-backend.onrender.com') + '' : 'https://socialhub-ai-backend.onrender.com'}//api/v1/message/all/${selectedUserId}`, {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/message/all/${selectedUserId}`, {
           withCredentials: true,
         });
         if (res.data.success) {
