@@ -191,9 +191,9 @@ const Profile = () => {
                       </Button>
                       <Button
                         onClick={() => connectionActionHandler("reject")}
-                        className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold px-4 py-1.5 h-auto text-sm rounded-lg"
+                        className="bg-transparent hover:bg-gray-100 text-gray-500 font-semibold px-4 py-1.5 h-auto text-sm rounded-lg border border-gray-200"
                       >
-                        Reject
+                        Ignore
                       </Button>
                     </div>
                   ) : (

@@ -10,6 +10,7 @@ import {
   BarChart3,
   Moon,
   Sun,
+  Users,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -87,6 +88,8 @@ const LeftSidebar = () => {
       navigate("/chat");
     } else if (textType === "Search") {
       navigate("/search");
+    } else if (textType === "Friends") {
+      navigate("/friends");
     } else if (textType === "Analytics") {
       navigate("/analytics");
     } else if (textType === "Notifications") {
@@ -100,6 +103,7 @@ const LeftSidebar = () => {
   const sidebarItems = [
     { icon: <Home className="w-5 h-5" />, text: "Home" },
     { icon: <Search className="w-5 h-5" />, text: "Search" },
+    { icon: <Users className="w-5 h-5" />, text: "Friends" },
     { icon: <BarChart3 className="w-5 h-5" />, text: "Analytics" },
     { icon: <MessageCircle className="w-5 h-5" />, text: "Messages" },
     { icon: <Heart className="w-5 h-5" />, text: "Notifications" },
@@ -251,6 +255,12 @@ const LeftSidebar = () => {
           <PlusSquare className="w-5.5 h-5.5" />
         </button>
         <button
+          onClick={() => navigate("/friends")}
+          className="text-neutral-700 dark:text-zinc-300 hover:text-neutral-900 p-2 cursor-pointer active:scale-90 transition-transform"
+        >
+          <Users className="w-5.5 h-5.5" />
+        </button>
+        <button
           onClick={() => navigate("/chat")}
           className="text-neutral-700 dark:text-zinc-300 hover:text-neutral-900 p-2 cursor-pointer active:scale-90 transition-transform"
         >
@@ -325,13 +335,13 @@ const LeftSidebar = () => {
                         onClick={async () => {
                            try {
                              await axios.post(`/api/v1/user/connection-request/${notification.userId}/reject`, {}, { withCredentials: true });
-                             toast.success("Connection request rejected");
+                             toast.success("Connection request ignored");
                              markNotificationsAsRead();
-                           } catch (err) { toast.error("Error rejecting request"); }
+                           } catch (err) { toast.error("Error ignoring request"); }
                         }}
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 text-xs font-semibold rounded-md"
+                        className="bg-transparent hover:bg-gray-100 text-gray-500 px-3 py-1 text-xs font-semibold rounded-md transition-colors"
                       >
-                        Reject
+                        Ignore
                       </button>
                     </div>
                   )}

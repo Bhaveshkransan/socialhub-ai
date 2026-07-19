@@ -9,6 +9,7 @@ import EditProfile from "../src/components/EditProfile";
 import ChatPage from "./components/ChatPage";
 import Analytics from "./components/Analytics";
 import SearchPage from "./components/SearchPage";
+import FriendsPage from "./components/FriendsPage";
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -70,6 +71,7 @@ function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/friends" element={<FriendsPage />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
