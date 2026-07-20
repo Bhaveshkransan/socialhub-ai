@@ -173,7 +173,7 @@ const Profile = () => {
                       onClick={() => connectionActionHandler("remove")}
                       className="bg-neutral-100 hover:bg-red-50 text-neutral-800 hover:text-red-600 font-semibold px-4 py-1.5 h-auto text-sm rounded-lg border border-neutral-200 hover:border-red-200"
                     >
-                      Remove Connection
+                      Disconnect
                     </Button>
                   ) : loggedInUser?.sentConnectionRequests?.includes(profileUser?._id) ? (
                     <Button

@@ -5,13 +5,18 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
 import useGetAllPost from '@/hooks/useGetAllPost';
-import { Users, LayoutGrid, MessageCircle } from 'lucide-react';
+import { Users, LayoutGrid, MessageCircle, UserMinus } from 'lucide-react';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
+import { removeConnection } from '@/redux/authSlice';
 
 const FriendsPage = () => {
   const [activeTab, setActiveTab] = useState('feed'); // 'feed' or 'list'
   const { user } = useSelector((store) => store.auth);
   const { posts } = useSelector((store) => store.post);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   useGetAllPost();
 
   const connections = user?.connections || [];
@@ -19,6 +24,19 @@ const FriendsPage = () => {
 
   // Filter posts to only show those from connections
   const friendsPosts = posts?.filter((post) => connectionIds.includes(post.author._id)) || [];
+
+  const disconnectHandler = async (friendId) => {
+    try {
+      const res = await axios.post(`/api/v1/user/connection/remove/${friendId}`, {}, { withCredentials: true });
+      if (res.data.success) {
+        toast.success("Disconnected successfully");
+        dispatch(removeConnection(friendId));
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to disconnect");
+    }
+  };
 
   return (
     <div className="flex-1 max-w-4xl mx-auto w-full p-4 md:p-8">
@@ -77,14 +95,24 @@ const FriendsPage = () => {
                 </Avatar>
                 <div className="flex flex-col flex-1 min-w-0">
                   <h3 className="font-bold text-gray-900 dark:text-zinc-100 cursor-pointer truncate" onClick={() => navigate(`/profile/${friend._id}`)}>{friend.username}</h3>
-                  <Button
-                    onClick={() => navigate('/chat')}
-                    variant="outline"
-                    className="mt-2 text-xs h-8 flex items-center gap-2 border-blue-200 dark:border-blue-900/50 text-[#0095F6] hover:bg-blue-50 dark:hover:bg-blue-900/20 w-fit"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    Message
-                  </Button>
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      onClick={() => navigate('/chat')}
+                      variant="outline"
+                      className="text-xs h-8 flex items-center gap-2 border-blue-200 dark:border-blue-900/50 text-[#0095F6] hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      Message
+                    </Button>
+                    <Button
+                      onClick={() => disconnectHandler(friend._id)}
+                      variant="outline"
+                      className="text-xs h-8 flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                    >
+                      <UserMinus className="w-3.5 h-3.5" />
+                      Disconnect
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))
