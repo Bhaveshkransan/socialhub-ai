@@ -19,7 +19,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser, addConnection } from "@/redux/authSlice";
-import { markAllAsRead } from "@/redux/rtnSlice";
+import { markAllAsRead, removeNotification } from "@/redux/rtnSlice";
 import CreatePost from "./CreatePost";
 
 const LeftSidebar = () => {
@@ -329,7 +329,11 @@ const LeftSidebar = () => {
                                username: notification.userDetails?.username || notification.sender?.username,
                                profilePicture: notification.userDetails?.profilePicture || notification.sender?.profilePicture
                              }));
-                           } catch (err) { toast.error("Error accepting request"); }
+                             dispatch(removeNotification(notification._id));
+                           } catch (err) { 
+                             toast.error(err.response?.data?.message || "Error accepting request");
+                             if (err.response?.status === 400) dispatch(removeNotification(notification._id));
+                           }
                         }}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs font-semibold rounded-md"
                       >
@@ -338,10 +342,15 @@ const LeftSidebar = () => {
                       <button 
                         onClick={async () => {
                            try {
-                             await axios.post(`/api/v1/user/connection-request/${notification.userId}/reject`, {}, { withCredentials: true });
-                             toast.success("Connection request ignored");
+                             const senderId = notification.userId || notification.sender?._id;
+                             await axios.post(`/api/v1/user/connection-request/${senderId}/reject`, {}, { withCredentials: true });
+                             toast.success("Request ignored");
                              markNotificationsAsRead();
-                           } catch (err) { toast.error("Error ignoring request"); }
+                             dispatch(removeNotification(notification._id));
+                           } catch (err) { 
+                             toast.error(err.response?.data?.message || "Error ignoring request");
+                             if (err.response?.status === 400) dispatch(removeNotification(notification._id));
+                           }
                         }}
                         className="bg-transparent hover:bg-gray-100 text-gray-500 px-3 py-1 text-xs font-semibold rounded-md transition-colors"
                       >

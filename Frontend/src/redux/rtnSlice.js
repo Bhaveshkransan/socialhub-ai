@@ -22,9 +22,13 @@ const rtnSlice = createSlice({
     },
     markAllAsRead: (state) => {
         state.likeNotification = state.likeNotification.map(notification => ({ ...notification, read: true }));
+    },
+    removeNotification: (state, action) => {
+        // action.payload is the notification ID
+        state.likeNotification = state.likeNotification.filter(n => n._id !== action.payload);
     }
   },
 });
 
-export const {setLikeNotification, markAllAsRead} = rtnSlice.actions;
+export const {setLikeNotification, markAllAsRead, removeNotification} = rtnSlice.actions;
 export default rtnSlice.reducer;
