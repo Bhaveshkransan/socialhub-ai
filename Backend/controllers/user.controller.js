@@ -29,14 +29,20 @@ export const register = async (req, res) => {
       });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await User.create({
+    const user = await User.create({
       username,
       email,
       password: hashedPassword,
     });
-    return res.status(200).json({
-      message: "Account Created Successfully",
+    return res.status(201).json({
+      message: "Account created successfully.",
       success: true,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        profilePicture: user.profilePicture
+      }
     });
   } catch (error) {
     console.log(error);
@@ -106,6 +112,7 @@ export const login = async (req, res) => {
         message: `Welcome back ${user.username}`,
         success: true,
         user,
+        token
       });
   } catch (error) {
     console.log(error);

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { setAuthUser } from "@/redux/authSlice";
+import { setAuthUser, setToken } from "@/redux/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -48,6 +48,9 @@ const Login = () => {
 
       if (res.data.success) {
         dispatch(setAuthUser(res.data.user))
+        if (res.data.token) {
+          dispatch(setToken(res.data.token))
+        }
         
         toast.success(res.data.message);
 

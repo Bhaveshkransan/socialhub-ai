@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { act } from "react";
 
 const authSlice = createSlice({
     name: "auth",
@@ -8,6 +7,7 @@ const authSlice = createSlice({
         userProfile:null,
         selectedUser:null,
         suggestedUsers:[],
+        token: null,
     },
     reducers:{
         setAuthUser :(state,action) =>{
@@ -17,6 +17,9 @@ const authSlice = createSlice({
                 state.selectedUser = null;
                 state.suggestedUsers = [];
             }
+        },
+        setToken: (state, action) => {
+            state.token = action.payload;
         },
         setUserProfile :(state,action) =>{
             state.userProfile=action.payload;
@@ -40,5 +43,5 @@ const authSlice = createSlice({
     }
 })
 
-export const {setAuthUser, setUserProfile, setSuggestedUsers, setSelectedUser, addConnection, removeConnection} = authSlice.actions;
+export const {setAuthUser, setUserProfile, setSuggestedUsers, setSelectedUser, addConnection, removeConnection, setToken} = authSlice.actions;
 export default authSlice.reducer
