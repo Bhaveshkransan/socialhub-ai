@@ -15,9 +15,12 @@ router.route('/debug-bye-posts').get(async (req, res) => {
         const Post = (await import('../models/post.model.js')).Post;
         
         const bye = await User.findOne({ username: 'bye' });
-        if (!bye) return res.json({ error: "bye not found" });
+        const bhavesh = await User.findOne({ username: 'bhavesh_newest' });
+        
+        if (!bye || !bhavesh) return res.json({ error: "users not found" });
 
         const connectionIds = bye.connections;
+        const bhaveshPosts = await Post.find({ author: bhavesh._id }).populate("author", "username");
         const posts = await Post.find({
             $or: [
                 { visibility: "public" },
@@ -29,7 +32,13 @@ router.route('/debug-bye-posts').get(async (req, res) => {
 
         res.json({
             byeConnections: connectionIds,
-            postsReturned: posts.map(p => ({
+            bhaveshId: bhavesh._id,
+            bhaveshAllPosts: bhaveshPosts.map(p => ({
+                id: p._id,
+                visibility: p.visibility,
+                caption: p.caption
+            })),
+            postsReturnedForBye: posts.map(p => ({
                 id: p._id,
                 author: p.author.username,
                 visibility: p.visibility,
