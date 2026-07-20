@@ -52,8 +52,29 @@ router.route('/debug/fix-connections').get(async (req, res) => {
 router.route('/debug/users').get(async (req, res) => {
     try {
         const User = (await import('../models/user.model.js')).User;
-        const users = await User.find({ username: { $in: ['bye', 'bhavesh_newest'] } }).select('username connections sentConnectionRequests receivedConnectionRequests');
-        res.json(users);
+        const Post = (await import('../models/post.model.js')).Post;
+        
+        const bye = await User.findOne({ username: 'bye' });
+        const bhavesh = await User.findOne({ username: 'bhavesh_newest' });
+        
+        if (!bye || !bhavesh) return res.json({ error: "Users not found" });
+
+        const connectionIds = bye.connections;
+        const posts = await Post.find({
+            $or: [
+                { visibility: "public" },
+                { author: bye._id },
+                { visibility: "close_friends", author: { $in: connectionIds } },
+                { visibility: "connections", author: { $in: connectionIds } }
+            ]
+        }).populate("author", "username profilePicture");
+
+        res.json({
+            byeConnections: bye.connections,
+            bhaveshId: bhavesh._id,
+            postsReturnedForBye: posts.length,
+            postsData: posts.map(p => ({ id: p._id, author: p.author?.username, visibility: p.visibility }))
+        });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

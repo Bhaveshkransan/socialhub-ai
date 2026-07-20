@@ -23,7 +23,11 @@ const FriendsPage = () => {
   const connectionIds = connections.map(c => c._id || c);
 
   // Filter posts to only show those from connections
-  const friendsPosts = posts?.filter((post) => connectionIds.includes(post.author._id)) || [];
+  const friendsPosts = posts?.filter((post) => {
+    const authorId = post.author?._id || post.author;
+    const authorIdStr = authorId?.toString();
+    return connectionIds.some(cId => cId?.toString() === authorIdStr);
+  }) || [];
 
   const disconnectHandler = async (friendId) => {
     try {
