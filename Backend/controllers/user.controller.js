@@ -397,11 +397,11 @@ export const sendConnectionRequest = async (req, res) => {
     const receiver = await User.findById(receiverId);
     if (!sender || !receiver) return res.status(404).json({ message: "User not found", success: false });
 
-    if (sender.connections.includes(receiverId)) return res.status(400).json({ message: "Already connected", success: false });
-    if (sender.sentConnectionRequests.includes(receiverId)) return res.status(400).json({ message: "Request already sent", success: false });
+    if (sender.connections.some(id => id.toString() === receiverId)) return res.status(400).json({ message: "Already connected", success: false });
+    if (sender.sentConnectionRequests.some(id => id.toString() === receiverId)) return res.status(400).json({ message: "Request already sent", success: false });
 
-    sender.sentConnectionRequests.push(receiverId);
-    receiver.receivedConnectionRequests.push(senderId);
+    if (!sender.sentConnectionRequests.some(id => id.toString() === receiverId)) sender.sentConnectionRequests.push(receiverId);
+    if (!receiver.receivedConnectionRequests.some(id => id.toString() === senderId)) receiver.receivedConnectionRequests.push(senderId);
 
     await Promise.all([sender.save(), receiver.save()]);
 
@@ -448,8 +448,8 @@ export const acceptConnectionRequest = async (req, res) => {
     sender.sentConnectionRequests = sender.sentConnectionRequests.filter(id => id.toString() !== userId);
 
     // Add to connections
-    if (!user.connections.includes(senderId)) user.connections.push(senderId);
-    if (!sender.connections.includes(userId)) sender.connections.push(userId);
+    if (!user.connections.some(id => id.toString() === senderId)) user.connections.push(senderId);
+    if (!sender.connections.some(id => id.toString() === userId)) sender.connections.push(userId);
 
     await Promise.all([user.save(), sender.save()]);
 
