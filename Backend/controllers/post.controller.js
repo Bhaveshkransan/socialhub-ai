@@ -78,6 +78,7 @@ export const getAllPost = async (req, res) => {
     const posts = await Post.find({
       $or: [
         { visibility: "public" },
+        { visibility: { $exists: false } },
         { author: currentUserId },
         { visibility: "close_friends", author: { $in: connectionIds } },
         { visibility: "connections", author: { $in: connectionIds } }
